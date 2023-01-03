@@ -63,7 +63,6 @@ def loadData(url, limit=None):
 
             if limit and i >= limit:
                 break
-    
 
     return trackObjs
 

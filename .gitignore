@@ -2,3 +2,20 @@
 __pycache__/
 reference/
 *.pickle
+
+
+# dependencies
+react-app/node_modules/
+react-app/.pnp
+react-app.pnp.js
+
+# testing
+react-app/coverage
+
+# production
+react-app/build
+
+# misc
+react-app/.DS_Store
+react-app/npm-debug.log*
+
