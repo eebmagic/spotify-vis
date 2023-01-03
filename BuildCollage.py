@@ -1,8 +1,9 @@
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
-from ImageDownloader import getImageAndCoords
 import pickle
 import json
+import os
+from ImageDownloader import getImageAndCoords
 from utils import getid
 
 def loadData(url, limit=None):
@@ -12,8 +13,11 @@ def loadData(url, limit=None):
     client_credentials_manager = SpotifyClientCredentials()
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-    with open('dataCache.pickle', 'rb') as f:
-        dataCache = pickle.load(f)
+    if os.path.exists('dataCache.pickle'):
+        with open('dataCache.pickle', 'rb') as f:
+            dataCache = pickle.load(f)
+    else:
+        dataCache = {}
 
     plistID = getid(url)
     if plistID in dataCache:

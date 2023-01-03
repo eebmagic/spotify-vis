@@ -9,25 +9,31 @@ import numpy as np
 from PIL import Image
 
 
-def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False, showImg=False):
+def getStartsAndImages(trackobjs):
+    realImages = {}
+    pos = {}
+    for track in trackobjs:
+        title = track['title']
+        img, polar = getImageAndCoords(track['image']['url'])
+        cart = polarToCartesian(*polar)
+        pos[title] = cart
+        realImages[title] = img
+
+    return pos, realImages
+
+def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False):
     # Define Constants
     DRAW_DIAGRAM = False
     WHITE = (255, 255, 255)
 
-    # Build Graph
-    G = nx.Graph()
-    ogpos = {}
-    realImages = {}
     print(f'Pulling images...')
-    for track in tqdm(trackobjs):
-        # G.add_node(img.title, image=img.image, position=img.position)
-        title = track['title']
+    ogpos, realImages = getStartsAndImages(trackobjs)
+    print(f'Finished getting images')
+
+    # Add nodes from titles
+    G = nx.Graph()
+    for title in ogpos.keys():
         G.add_node(title)
-        img, polar = getImageAndCoords(track['image']['url'])
-        cart = polarToCartesian(*polar)
-        ogpos[title] = cart
-        realImages[title] = img
-    print(f'Finished pulling images')
 
     # Add full weighted edges
     weights = []
@@ -126,16 +132,14 @@ def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False, s
         scaledP = (int(x//POS_SCALE_FACTOR), int(y//POS_SCALE_FACTOR))
         masterImg.paste(img, scaledP)
 
-    # Present the image
-    if showImg:
-        masterImg.show()
-
-    return ogpos
-
+    return masterImg
 
 if __name__ == '__main__':
     from BuildCollage import loadData
+
     url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
     data = loadData(url, limit=100)
-    positions = drawCanvas(data, verbose=True)
-    print(positions)
+
+    canvas = drawCanvas(data, verbose=True)
+    print(canvas)
+    canvas.show()

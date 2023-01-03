@@ -4,9 +4,14 @@ import numpy as np
 from io import BytesIO
 import colorsys
 import pickle
+import os
 
-with open('imageCache.pickle', 'rb') as f:
-    IMAGE_CACHE = pickle.load(f)
+
+if os.path.exists('imageCache.pickle'):
+    with open('imageCache.pickle', 'rb') as f:
+        IMAGE_CACHE = pickle.load(f)
+else:
+    IMAGE_CACHE = {}
 
 def RGBtoHSV(vec):
     return colorsys.rgb_to_hsv(vec[0]/255, vec[1]/255, vec[2]/255)
