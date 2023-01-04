@@ -109,23 +109,25 @@ const App = () => {
   return (
     <div>
       <URLEntry submitFunc={getPlaylist}/>
-      <ForceGraph2D
-        graphData={tracks}
-        backgroundColor="#000000"
-        linkColor={() => "#ffffff"}
-        d3AlphaDecay={0.06}
-        d3VelocityDecay={0.8}
-        width={800}
-        height={600}
-        nodeLabel="id"
-        nodeCanvasObject={(node, ctx) => {
+      {tracks.nodes.length === 0 ? null
+        :
+        <ForceGraph2D
+          graphData={tracks}
+          backgroundColor="#000000"
+          linkColor={() => "#ffffff"}
+          d3AlphaDecay={0.06}
+          d3VelocityDecay={0.8}
+          width={800}
+          height={600}
+          nodeLabel="id"
+          nodeCanvasObject={(node, ctx) => {
 
-          const SIZE = 100;
-          ctx.drawImage(node.imageObj, node.x, node.y, SIZE, SIZE);
+            const SIZE = 100;
+            ctx.drawImage(node.imageObj, node.x, node.y, SIZE, SIZE);
 
-        }}
-        // nodeCanvasObjectMode={() => "replace"}
-      />
+          }}
+        />
+      }
 
       <h1>My Playlists</h1>
       {playlists.map(playlist => {
