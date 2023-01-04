@@ -21,8 +21,22 @@ class URLEntry extends React.Component {
     fetch(`http://localhost:8000?url=${encodeURIComponent(this.state.url)}&email=${encodeURIComponent(this.props.email)}&username=${encodeURIComponent(this.props.username)}`)
       .then(response => response.json())
       .then(data => {
+        // Build image objects ONCE
+        data.forEach(node => {
+          const image = document.createElement('img');
+          image.src = node.image.url;
+          node.imageObj = image;
+        });
+
         console.log(`Response:`);
         console.log(data);
+
+        var gdata = {
+          nodes: data,
+          links: []
+        }
+
+        this.props.setTracks(gdata);
       });
   };
 
@@ -33,7 +47,7 @@ class URLEntry extends React.Component {
           URL:
           <input type="text" value={this.state.url} onChange={this.handleChange} />
         </label>
-        <button type="submit">REVERSE</button>
+        <button type="submit">SUBMIT URL</button>
       </form>
     );
   }

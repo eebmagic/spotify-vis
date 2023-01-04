@@ -1,10 +1,10 @@
-from spotipy.oauth2 import SpotifyClientCredentials
+from utils import getid
+
 import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 import pickle
 import json
 import os
-from ImageDownloader import getImageAndCoords
-from utils import getid
 
 def loadData(url, limit=None):
     '''
@@ -32,24 +32,25 @@ def loadData(url, limit=None):
         with open('dataCache.pickle', 'wb') as f:
             pickle.dump(dataCache, f)
 
-    # print(json.dumps(apiResult, indent=2))
-    # quit()
 
     totalTracks = apiResult['tracks']['total']
     found = len(apiResult['tracks']['items'])
     print(f'Found {found} tracks out of {totalTracks} total tracks')
 
+    # TODO: Update this later to iterate until no more 'next' attribute
     trackObjs = []
     trackedAlbums = set()
     for i, item in enumerate(apiResult['tracks']['items']):
         track = item['track']
+
         title = track['name']
         artists = [art['name'] for art in track['artists']]
+        trackURL = track['external_urls']['spotify']
+
         images = track['album']['images']
         bestImage = max(images, key=lambda im: im['height']*im['width'])
-        trackURL = track['external_urls']['spotify']
-        albumID = track['album']['id']
 
+        albumID = track['album']['id']
         if albumID not in trackedAlbums:
             obj = {
                 'title': title,
@@ -65,14 +66,6 @@ def loadData(url, limit=None):
                 break
 
     return trackObjs
-
-
-class ImageObj():
-    def __init__(self, image, imageURL, position, title):
-        self.image = image
-        self.imageURL = imageURL
-        self.position = position
-        self.title = title
 
 
 if __name__ == "__main__":

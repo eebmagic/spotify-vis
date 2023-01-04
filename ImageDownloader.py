@@ -38,6 +38,9 @@ def imgToCoords(img):
     NOTE: This could easily be changed to use the primary (rather than avg) color.
     '''
     avgColor = np.round(np.mean(img, axis=(1, 0)))
+    if len(img.shape) < 3:
+        avgColor = np.array([avgColor, avgColor, avgColor])
+
     newcolor = RGBtoHSV(avgColor)
 
     angle = newcolor[0]*360

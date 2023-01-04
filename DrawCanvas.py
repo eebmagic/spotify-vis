@@ -1,9 +1,6 @@
 import networkx as nx
-import pickle
-from BuildCollage import ImageObj
 from ImageDownloader import getImageAndCoords
 from utils import polarToCartesian
-from tqdm import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
@@ -138,6 +135,7 @@ if __name__ == '__main__':
     from BuildCollage import loadData
 
     url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
+    url = 'https://open.spotify.com/playlist/7dveEZVRWXFRHaa9bgDVWe'
     data = loadData(url, limit=100)
 
     canvas = drawCanvas(data, verbose=True)
