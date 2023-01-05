@@ -4,20 +4,24 @@ import numpy as np
 from io import BytesIO
 import colorsys
 import pickle
+import yaml
 import os
 
+with open('config.yaml') as file:
+    CONFIG = yaml.load(file)
 
-if os.path.exists('imageCache.pickle'):
-    with open('imageCache.pickle', 'rb') as f:
-        IMAGE_CACHE = pickle.load(f)
-else:
-    IMAGE_CACHE = {}
+if CONFIG['useImageCache']:
+    if os.path.exists('imageCache.pickle'):
+        with open('imageCache.pickle', 'rb') as f:
+            IMAGE_CACHE = pickle.load(f)
+    else:
+        IMAGE_CACHE = {}
 
 def RGBtoHSV(vec):
     return colorsys.rgb_to_hsv(vec[0]/255, vec[1]/255, vec[2]/255)
 
 def downloadImage(url):
-    if url in IMAGE_CACHE:
+    if CONFIG['useImageCache'] and url in IMAGE_CACHE:
         arr, img = IMAGE_CACHE[url]
         return arr, img
     else:
@@ -25,10 +29,11 @@ def downloadImage(url):
         img = Image.open(BytesIO(res.content))
         imgArr = np.array(img)
 
-        IMAGE_CACHE[url] = (imgArr, img)
-        with open('imageCache.pickle', 'wb') as f:
-            pickle.dump(IMAGE_CACHE, f)
-        print(f'SAVED img in cache: {url}')
+        if CONFIG['useImageCache']:
+            IMAGE_CACHE[url] = (imgArr, img)
+            with open('imageCache.pickle', 'wb') as f:
+                pickle.dump(IMAGE_CACHE, f)
+            print(f'SAVED img in cache: {url}')
 
         return imgArr, img
 

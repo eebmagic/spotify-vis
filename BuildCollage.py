@@ -4,7 +4,11 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import pickle
 import json
+import yaml
 import os
+
+with open('config.yaml') as file:
+    CONFIG = yaml.load(file)
 
 def loadData(url, limit=None):
     '''
@@ -13,29 +17,30 @@ def loadData(url, limit=None):
     client_credentials_manager = SpotifyClientCredentials()
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-    # WITH Cache
-    if os.path.exists('dataCache.pickle'):
-        with open('dataCache.pickle', 'rb') as f:
-            dataCache = pickle.load(f)
-    else:
-        dataCache = {}
+    if CONFIG['useDataCache']:
+        # WITH Cache
+        if os.path.exists('dataCache.pickle'):
+            with open('dataCache.pickle', 'rb') as f:
+                dataCache = pickle.load(f)
+        else:
+            dataCache = {}
 
-    plistID = getid(url)
-    if plistID in dataCache:
-        print(f'Found in cache: {url}')
-        apiResult = dataCache[plistID]
+        plistID = getid(url)
+        if plistID in dataCache:
+            print(f'Found in cache: {url}')
+            apiResult = dataCache[plistID]
+        else:
+            print(f'Loading from spotify...')
+            apiResult = sp.playlist(plistID)
+            print(f'Finished API call')
+
+            dataCache[plistID] = apiResult
+            with open('dataCache.pickle', 'wb') as f:
+                pickle.dump(dataCache, f)
     else:
-        print(f'Loading from spotify...')
+        # WITHOUT Cache
+        plistID = getid(url)
         apiResult = sp.playlist(plistID)
-        print(f'Finished API call')
-
-        dataCache[plistID] = apiResult
-        with open('dataCache.pickle', 'wb') as f:
-            pickle.dump(dataCache, f)
-
-    # # WITHOUT Cache
-    # plistID = getid(url)
-    # apiResult = sp.playlist(plistID)
 
     ########################
 
