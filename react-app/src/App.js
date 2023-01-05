@@ -122,11 +122,8 @@ const App = () => {
               .then(response => response.json())
               .then(data => {
                 items = items.concat(data.items)
-                // console.log(`Call gave ${data.items.length} items. Added to ${items.length}`);
-                // console.log(`Finished?: ${items.length == LIMIT}`);
-                if (items.length == LIMIT) {
-                  console.log(items);
-                  setPlaylists(items.slice(0, LIMIT));
+                if (items.length === LIMIT) {
+                  setPlaylists(items);
                 }
               });
           }
@@ -224,6 +221,8 @@ const App = () => {
         // console.log(playlist);
         if (playlist.images.length > 0) {
           return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
+        } else {
+          return null;
         }
       })}
       
