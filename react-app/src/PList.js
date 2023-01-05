@@ -5,6 +5,14 @@ class PList extends React.Component {
   constructor(props) {
     super(props);
 
+    const images = this.props.plist.images;
+    this.url = null;
+    if (images.length > 0) {
+      this.url = images[0].url;
+    } else {
+      console.log(`NO IMAGE FOR: ${this.props.plist.name}`)
+    }
+
     this.handleClick = () => {
       this.props.submitFunc(this.props.plist.external_urls.spotify);
     }
@@ -16,9 +24,13 @@ class PList extends React.Component {
         <div>
           {this.props.plist.name}
         </div>
-        <div>
-          <img src={this.props.plist.images[0].url} width="200" alt="failed to load" />
-        </div>
+        {this.url ? 
+          <div>
+            <img src={this.url} width="200" alt="failed to load" />
+          </div>
+          :
+          null
+        }
       </div>
     );
   }

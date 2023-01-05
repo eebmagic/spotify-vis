@@ -58,6 +58,9 @@ def loadData(url, limit=None):
             trackURL = track['external_urls']['spotify']
 
             images = track['album']['images']
+            if not images:
+                print(f'Skipping track: "{title}" because no images found')
+                continue
             bestImage = max(images, key=lambda im: im['height']*im['width'])
 
             albumID = track['album']['id']
@@ -75,6 +78,7 @@ def loadData(url, limit=None):
                 if limit and i >= limit:
                     break
 
+        # print(json.dumps(result, indent=2))
         nextResult = None
         if ('tracks' in result) and (result['tracks']['next']):
             nextResult = sp.next(result['tracks'])
@@ -82,22 +86,26 @@ def loadData(url, limit=None):
             nextResult = sp.next(result)
 
         if nextResult != None:
-            trackObjs = processResult(nextResult, trackObjs=trackObjs, trackedAlbums=trackedAlbums)
+            trackObjs, _ = processResult(nextResult, trackObjs=trackObjs, trackedAlbums=trackedAlbums)
 
-        return trackObjs
+        playlistName = result['name'] if 'name' in result else None
+        return trackObjs, playlistName
 
-    trackObjs = processResult(apiResult)
+    trackObjs, playlistName = processResult(apiResult)
 
-    return trackObjs
+    return trackObjs, playlistName
 
 
 if __name__ == "__main__":
     # Slow playlist
     # url = 'https://open.spotify.com/playlist/7BfbPGFO908gMjvqqUqLBm?si=7e696427e49d44d7'
     # Ok music senior year playlist
-    url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
+    # url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
+    # Ok music junior year 
+    url = 'https://open.spotify.com/playlist/4BnmmXEw9RQk0lsYBdNqMa'
 
-    data = loadData(url)
+    data, name = loadData(url)
     # print(json.dumps(data, indent=2))
-    print(type(data))
+    print(type(data), type(name))
     print(len(data))
+    print(name)

@@ -7,6 +7,7 @@ const App = () => {
   const [token, setToken] = useState("");
 
   const [playlists, setPlaylists] = useState([]);
+  const [currlist, setCurrlist] = useState("");
   const [tracks, setTracks] = useState({nodes: [], links: []});
   const [waiting, setWaiting] = useState(false);
 
@@ -18,10 +19,20 @@ const App = () => {
   const getPlaylist = (url) => {
     if (!waiting) {
       console.log(` Sending: ${url}`);
-      setWaiting(true);
+      // setWaiting(true);
       fetch(`http://localhost:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
-        .then(response => response.json())
-        .then(data => {
+        .then(response => {
+          console.log(response);
+          if (response.ok) {
+            return response.json();
+          } else {
+            console.log(`Bad response from server: ${response.status} ${response.statusText}`)
+            setWaiting(false);
+            throw new Error(`Bad response from server: ${response.status} ${response.statusText}`)
+          }
+        })
+        .then(result => {
+          var {data, name} = result;
           data.forEach(node => {
             const image = document.createElement('img');
             image.src = node.image.url;
@@ -40,6 +51,7 @@ const App = () => {
           console.log(`Recieved ${gdata.nodes.length} track nodes`);
           console.log(data)
 
+          setCurrlist({name: name, url: url});
           setTracks(gdata);
           setWaiting(false)
         });
@@ -80,15 +92,47 @@ const App = () => {
   // Get user playlists
   useEffect(() => {
     if (accessToken) {
-      fetch('https://api.spotify.com/v1/me/playlists?limit=3', {
+      var items = [];
+      var offset = 0;
+      const pagesize = 50;
+
+
+      var url = `https://api.spotify.com/v1/me/playlists?limit=${pagesize}&offset=${offset}`;
+      console.log(`Working with url: ${url}`);
+      fetch(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
       })
         .then(response => response.json())
         .then(data => {
-          setPlaylists(data.items);
+          items = items.concat(data.items);
+          const LIMIT = data.total;
+
+          offset += pagesize;
+          while (offset < LIMIT) {
+            var url = `https://api.spotify.com/v1/me/playlists?limit=${pagesize}&offset=${offset}`;
+            offset += pagesize;
+            fetch(url, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`
+              }
+            })
+              .then(response => response.json())
+              .then(data => {
+                items = items.concat(data.items)
+                // console.log(`Call gave ${data.items.length} items. Added to ${items.length}`);
+                // console.log(`Finished?: ${items.length == LIMIT}`);
+                if (items.length == LIMIT) {
+                  console.log(items);
+                  setPlaylists(items.slice(0, LIMIT));
+                }
+              });
+          }
+
         });
+
+      console.log(`After loop got ${items.length} items`);
     }
   }, [accessToken]);
 
@@ -172,9 +216,15 @@ const App = () => {
         />
       }
 
+      <p>Current Playlist: <a href={currlist.url} target="_blank" rel="noopener noreferrer">{currlist.name}</a></p>
+
       <h1>My Playlists</h1>
       {playlists.map(playlist => {
-        return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
+        // console.log(`${playlist.id}`);
+        // console.log(playlist);
+        if (playlist.images.length > 0) {
+          return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
+        }
       })}
       
       <p>Access Token: {token}</p>

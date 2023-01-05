@@ -9,47 +9,56 @@ import json
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
-        self.end_headers()
-        
-        # Load params
-        query_string = urlparse(self.path).query
-        query_params = parse_qs(query_string)
-        url= query_params.get('url', [''])[0]
-        email = query_params.get('email', [''])[0]
-        username = query_params.get('username', [''])[0]
+        try:
+            # Load params
+            query_string = urlparse(self.path).query
+            query_params = parse_qs(query_string)
+            url= query_params.get('url', [''])[0]
+            email = query_params.get('email', [''])[0]
+            username = query_params.get('username', [''])[0]
 
-        print(json.dumps(query_params, indent=2))
-        print(f'url: {url}')
-        print(f'   email: {email}')
-        print(f'username: {username}')
+            print(json.dumps(query_params, indent=2))
+            print(f'url: {url}')
+            print(f'   email: {email}')
+            print(f'username: {username}')
 
-        start = time.time()
+            start = time.time()
 
-        # Process url
-        data = loadData(url)
-        print(f'Loaded {len(data)} tracks')
+            # Process url
+            data, playlistName = loadData(url)
+            print(f'Loaded {len(data)} tracks')
 
-        # Generate data
-        pos, _ = getStartsAndImages(data)
+            # Generate data
+            pos, _ = getStartsAndImages(data)
 
-        # Convert to web format
-        finalData = []
-        for item in data:
-            p = pos[item['title']]
-            item['startx'] = p[0]
-            item['starty'] = p[1]
-            item['id'] = item['title']
+            # Convert to web format
+            finalData = []
+            for item in data:
+                p = pos[item['title']]
+                item['startx'] = p[0]
+                item['starty'] = p[1]
+                item['id'] = item['title']
 
-            finalData.append(item)
-        
+                finalData.append(item)
 
-        print(f'Finished in {time.time()-start} seconds')
+            payload = {'data': finalData, 'name': playlistName}
 
-        # Return positions dict
-        self.wfile.write(json.dumps(finalData).encode())
+            print(f'Finished in {time.time()-start} seconds')
+
+            # Return positions dict
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
+            self.end_headers()
+            # self.wfile.write(json.dumps(finalData).encode())
+            self.wfile.write(json.dumps(payload).encode())
+        except Exception as e:
+            print(f'Encountered error: {str(e)}')
+            print(e)
+            self.send_error(500, f"Encountered error: {str(e)}")
+            # self.send_header('Content-type', 'application/json')
+            # self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
+            # self.end_headers()
 
 httpd = HTTPServer(('localhost', 8000), RequestHandler)
 print(f'Server started...')
