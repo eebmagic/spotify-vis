@@ -20,7 +20,8 @@ const App = () => {
     if (!waiting) {
       console.log(` Sending: ${url}`);
       // setWaiting(true);
-      fetch(`http://localhost:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
+      // fetch(`http://localhost:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
+      fetch(`http://45.33.99.159:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
         .then(response => {
           console.log(response);
           if (response.ok) {
@@ -185,21 +186,20 @@ const App = () => {
         <ForceGraph2D
           graphData={tracks}
           ref={fgRef}
-          backgroundColor="#000000"
+          backgroundColor="#1a1a1a"
           linkColor={() => "#ffffff"}
           // d3AlphaDecay={0.16}
           d3VelocityDecay={0.15}
-          width={800}
-          height={600}
+          // width={800}
+          // height={600}
           nodeLabel="id"
           nodeVal={4*100*0.6}
           enableNodeDrag={false}
-          onNodeClick={(node, event) => {
+          onNodeRightClick={(node, event) => {
             console.log(`fgRef.current:`);
             console.log(fgRef.current);
             console.log(`Clicked on node: ${node.trackURL}`);
             window.open(node.trackURL, '_blank');
-            return;
           }}
           cooldownTime={500}
           onEngineStop={() => {
