@@ -13,6 +13,7 @@ def loadData(url, limit=None):
     client_credentials_manager = SpotifyClientCredentials()
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
+    # WITH Cache
     if os.path.exists('dataCache.pickle'):
         with open('dataCache.pickle', 'rb') as f:
             dataCache = pickle.load(f)
@@ -32,38 +33,60 @@ def loadData(url, limit=None):
         with open('dataCache.pickle', 'wb') as f:
             pickle.dump(dataCache, f)
 
+    # # WITHOUT Cache
+    # plistID = getid(url)
+    # apiResult = sp.playlist(plistID)
 
-    totalTracks = apiResult['tracks']['total']
-    found = len(apiResult['tracks']['items'])
-    print(f'Found {found} tracks out of {totalTracks} total tracks')
+    ########################
+
+    # totalTracks = apiResult['tracks']['total']
+    # found = len(apiResult['tracks']['items'])
+    # print(f'Found {found} tracks out of {totalTracks} total tracks')
 
     # TODO: Update this later to iterate until no more 'next' attribute
-    trackObjs = []
-    trackedAlbums = set()
-    for i, item in enumerate(apiResult['tracks']['items']):
-        track = item['track']
+    def processResult(result, trackObjs=[], trackedAlbums=set()):
+        if 'tracks' in result:
+            items = result['tracks']['items']
+        else:
+            items = result['items']
 
-        title = track['name']
-        artists = [art['name'] for art in track['artists']]
-        trackURL = track['external_urls']['spotify']
+        for i, item in enumerate(items):
+            track = item['track']
 
-        images = track['album']['images']
-        bestImage = max(images, key=lambda im: im['height']*im['width'])
+            title = track['name']
+            artists = [art['name'] for art in track['artists']]
+            trackURL = track['external_urls']['spotify']
 
-        albumID = track['album']['id']
-        if albumID not in trackedAlbums:
-            obj = {
-                'title': title,
-                'artists': artists,
-                'image': bestImage,
-                'trackURL': trackURL
-            }
+            images = track['album']['images']
+            bestImage = max(images, key=lambda im: im['height']*im['width'])
 
-            trackObjs.append(obj)
-            trackedAlbums.add(albumID)
+            albumID = track['album']['id']
+            if albumID not in trackedAlbums:
+                obj = {
+                    'title': title,
+                    'artists': artists,
+                    'image': bestImage,
+                    'trackURL': trackURL
+                }
 
-            if limit and i >= limit:
-                break
+                trackObjs.append(obj)
+                trackedAlbums.add(albumID)
+
+                if limit and i >= limit:
+                    break
+
+        nextResult = None
+        if ('tracks' in result) and (result['tracks']['next']):
+            nextResult = sp.next(result['tracks'])
+        elif ('items' in result) and (result['next']):
+            nextResult = sp.next(result)
+
+        if nextResult != None:
+            trackObjs = processResult(nextResult, trackObjs=trackObjs, trackedAlbums=trackedAlbums)
+
+        return trackObjs
+
+    trackObjs = processResult(apiResult)
 
     return trackObjs
 
@@ -75,4 +98,6 @@ if __name__ == "__main__":
     url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
 
     data = loadData(url)
-    print(json.dumps(data, indent=2))
+    # print(json.dumps(data, indent=2))
+    print(type(data))
+    print(len(data))

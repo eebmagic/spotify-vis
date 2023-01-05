@@ -10,7 +10,6 @@ class PList extends React.Component {
     }
   }
 
-
   render() {
     return (
       <div key={this.props.plist.id} onClick={this.handleClick}>
