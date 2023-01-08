@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import URLEntry from './Entry.js';
 import PList from './PList';
 import { ForceGraph2D } from 'react-force-graph';
+import CONFIG from './config.json';
 
 const App = () => {
   const [token, setToken] = useState("");
@@ -21,7 +22,8 @@ const App = () => {
       console.log(` Sending: ${url}`);
       // setWaiting(true);
       // fetch(`http://localhost:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
-      fetch(`http://45.33.99.159:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
+      // fetch(`http://45.33.99.159:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
+      fetch(`http://${CONFIG.pyServerAddress}:${CONFIG.pyServerPort}?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
         .then(response => {
           console.log(response);
           if (response.ok) {
@@ -69,7 +71,8 @@ const App = () => {
     if (onlyOne && window.location.hash.split('&')[0] === "") {
       console.log(`Sending user to auth page...`)
       const clientId = '23344cb1f4b24df2927c825beeddf97c';
-      const redirectUri = 'http://localhost:3000';
+      // const redirectUri = 'http://localhost:3000';
+      const redirectUri = CONFIG.redirectUri;
       const scopes = ['user-read-private', 'user-read-email', 'playlist-read-private'];
 
       const authorizeUrl = 'https://accounts.spotify.com/authorize';

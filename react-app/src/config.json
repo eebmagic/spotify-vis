@@ -1,0 +1,7 @@
+{
+  "useDataCache": false,
+  "useImageCache": false,
+  "pyServerPort": 8000,
+  "pyServerAddress": "localhost",
+  "redirectURI": "http://localhost:3000"
+}

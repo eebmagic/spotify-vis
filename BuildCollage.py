@@ -4,11 +4,10 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import pickle
 import json
-import yaml
 import os
 
-with open('config.yaml') as file:
-    CONFIG = yaml.load(file)
+with open('./react-app/src/config.json') as file:
+    CONFIG = json.load(file)
 
 def loadData(url, limit=None):
     '''

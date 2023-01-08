@@ -7,6 +7,10 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import json
 
+with open('./react-app/src/config.json') as file:
+    CONFIG = json.load(file)
+    print(f'Loaded config: {json.dumps(CONFIG, indent=2)}')
+
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
@@ -60,6 +64,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             # self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
             # self.end_headers()
 
-httpd = HTTPServer(('localhost', 8000), RequestHandler)
+httpd = HTTPServer(('localhost', CONFIG['pyServerPort']), RequestHandler)
 print(f'Server started...')
 httpd.serve_forever()

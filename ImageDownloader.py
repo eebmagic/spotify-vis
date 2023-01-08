@@ -4,11 +4,11 @@ import numpy as np
 from io import BytesIO
 import colorsys
 import pickle
-import yaml
+import json
 import os
 
-with open('config.yaml') as file:
-    CONFIG = yaml.load(file)
+with open('./react-app/src/config.json') as file:
+    CONFIG = json.load(file)
 
 if CONFIG['useImageCache']:
     if os.path.exists('imageCache.pickle'):
