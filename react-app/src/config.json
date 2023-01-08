@@ -2,6 +2,6 @@
   "useDataCache": false,
   "useImageCache": false,
   "pyServerPort": 8000,
-  "pyServerAddress": "localhost",
-  "redirectURI": "http://localhost:3000"
+  "pyServerAddress": "45.33.99.159",
+  "redirectURI": "https://spotify-vis-eebmagic.vercel.app"
 }

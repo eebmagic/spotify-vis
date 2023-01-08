@@ -71,8 +71,10 @@ const App = () => {
     if (onlyOne && window.location.hash.split('&')[0] === "") {
       console.log(`Sending user to auth page...`)
       const clientId = '23344cb1f4b24df2927c825beeddf97c';
-      // const redirectUri = 'http://localhost:3000';
-      const redirectUri = CONFIG.redirectUri;
+      const redirectUri = CONFIG.redirectURI;
+      // console.log(CONFIG);
+      // console.log(CONFIG.redirectURI);
+      // console.log(`Redirect URI: ${redirectUri}`);
       const scopes = ['user-read-private', 'user-read-email', 'playlist-read-private'];
 
       const authorizeUrl = 'https://accounts.spotify.com/authorize';
