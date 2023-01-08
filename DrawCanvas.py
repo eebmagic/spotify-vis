@@ -1,7 +1,6 @@
 import networkx as nx
 from ImageDownloader import getImageAndCoords
 from utils import polarToCartesian
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 

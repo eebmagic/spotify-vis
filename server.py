@@ -64,6 +64,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             # self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
             # self.end_headers()
 
-httpd = HTTPServer(('localhost', CONFIG['pyServerPort']), RequestHandler)
+httpd = HTTPServer((CONFIG['pyServerAddress'], CONFIG['pyServerPort']), RequestHandler)
 print(f'Server started...')
 httpd.serve_forever()

@@ -21,9 +21,9 @@ const App = () => {
     if (!waiting) {
       console.log(` Sending: ${url}`);
       // setWaiting(true);
-      // fetch(`http://localhost:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
-      // fetch(`http://45.33.99.159:8000?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
-      fetch(`http://${CONFIG.pyServerAddress}:${CONFIG.pyServerPort}?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`)
+      const requestURL = `${CONFIG.serverOnHTTPS ? "https" : "http"}://${CONFIG.pyServerAddress}:${CONFIG.pyServerPort}?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`;
+      console.log(`Making request at URL: ${requestURL}}`);
+      fetch(requestURL)
         .then(response => {
           console.log(response);
           if (response.ok) {
