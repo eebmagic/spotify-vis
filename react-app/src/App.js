@@ -75,7 +75,7 @@ const App = () => {
       const redirectUri = CONFIG.redirectURI;
       // console.log(CONFIG);
       // console.log(CONFIG.redirectURI);
-      // console.log(`Redirect URI: ${redirectUri}`);
+      console.log(`Redirect URI: ${redirectUri}`);
       const scopes = ['user-read-private', 'user-read-email', 'playlist-read-private'];
 
       const authorizeUrl = 'https://accounts.spotify.com/authorize';

@@ -55,7 +55,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             # self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
             self.send_header('Access-Control-Allow-Origin', CONFIG['redirectURI'])
             self.end_headers()
-            # self.wfile.write(json.dumps(finalData).encode())
+
             self.wfile.write(json.dumps(payload).encode())
         except Exception as e:
             print(f'Encountered error: {str(e)}')
