@@ -2,7 +2,7 @@
   "useDataCache": false,
   "useImageCache": false,
   "pyServerPort": 8000,
-  "pyServerAddress": "45.33.99.159",
-  "serverOnHTTPS": false,
+  "pyServerAddress": "spotifyvisapi.click",
+  "serverOnHTTPS": true,
   "redirectURI": "https://spotify-vis-eebmagic.vercel.app/"
 }
