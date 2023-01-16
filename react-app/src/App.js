@@ -126,6 +126,7 @@ const App = () => {
               }
             })
               .then(response => response.json())
+              // eslint-disable-next-line
               .then(data => {
                 items = items.concat(data.items)
                 if (items.length === LIMIT) {
@@ -193,8 +194,8 @@ const App = () => {
           linkColor={() => "#ffffff"}
           // d3AlphaDecay={0.16}
           d3VelocityDecay={0.15}
-          // width={800}
-          // height={600}
+          width={800}
+          height={600}
           nodeLabel="id"
           nodeVal={4*100*0.6}
           enableNodeDrag={false}
