@@ -65,5 +65,5 @@ class RequestHandler(BaseHTTPRequestHandler):
             # self.end_headers()
 
 httpd = HTTPServer((CONFIG['pyServerAddress'], CONFIG['pyServerPort']), RequestHandler)
-print(f'Server started...')
+print(f'Server started at: {CONFIG["pyServerAddress"]}:{CONFIG["pyServerPort"]} ...')
 httpd.serve_forever()
