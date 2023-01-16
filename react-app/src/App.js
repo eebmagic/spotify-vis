@@ -23,8 +23,9 @@ const App = () => {
       // setWaiting(true);
       const requestURL = `${CONFIG.serverOnHTTPS ? "https" : "http"}://${CONFIG.pyServerAddress}:${CONFIG.pyServerPort}?url=${encodeURIComponent(url)}&email=${encodeURIComponent(userEmail)}&username=${encodeURIComponent(username)}`;
       console.log(`Making request at URL: ${requestURL}}`);
-      fetch(requestURL)
+      fetch(requestURL, {mode: 'no-cors'})
         .then(response => {
+          console.log(`Got response:`);
           console.log(response);
           if (response.ok) {
             return response.json();

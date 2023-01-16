@@ -4,5 +4,5 @@
   "pyServerPort": 8000,
   "pyServerAddress": "45.33.99.159",
   "serverOnHTTPS": false,
-  "redirectURI": "http://localhost:3000"
+  "redirectURI": "https://spotify-vis-eight.vercel.app"
 }
