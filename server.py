@@ -6,6 +6,7 @@ import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import json
+import ssl
 
 with open('./react-app/src/config.json') as file:
     CONFIG = json.load(file)
@@ -65,6 +66,21 @@ class RequestHandler(BaseHTTPRequestHandler):
             # self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
             # self.end_headers()
 
+
+# Key is saved at:         /etc/letsencrypt/live/spotifyvisapi.click/privkey.pem
+# Certificate is saved at: /etc/letsencrypt/live/spotifyvisapi.click/fullchain.pem
+KEY_PATH =  "/etc/letsencrypt/live/spotifyvisapi.click/privkey.pem"
+CERT_PATH = "/etc/letsencrypt/live/spotifyvisapi.click/fullchain.pem"
+
 httpd = HTTPServer((CONFIG['pyServerAddress'], CONFIG['pyServerPort']), RequestHandler)
-print(f'Server started at: {CONFIG["pyServerAddress"]}:{CONFIG["pyServerPort"]} ...')
+httpd.socket = ssl.wrap_socket(
+    httpd.socket,
+    # keyfile="/root/keys/key.pem",
+    # certfile="/root/keys/cert.pem",
+    keyfile=KEY_PATH,
+    certfile=CERT_PATH,
+    server_side=True
+)
+
+print(f'Server started at \"{"https" if CONFIG["serverOnHTTPS"] else "http"}://{CONFIG["pyServerAddress"]}:{CONFIG["pyServerPort"]}\" ...')
 httpd.serve_forever()
