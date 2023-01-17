@@ -6,9 +6,14 @@ import colorsys
 import pickle
 import json
 import os
+import aiohttp
+import asyncio
+import time
 
 with open('./react-app/src/config.json') as file:
     CONFIG = json.load(file)
+
+semaphore = asyncio.Semaphore(2_000)
 
 if CONFIG['useImageCache']:
     if os.path.exists('imageCache.pickle'):
@@ -20,22 +25,30 @@ if CONFIG['useImageCache']:
 def RGBtoHSV(vec):
     return colorsys.rgb_to_hsv(vec[0]/255, vec[1]/255, vec[2]/255)
 
-def downloadImage(url):
+async def downloadImage(url):
     if CONFIG['useImageCache'] and url in IMAGE_CACHE:
+        print(f'Found in cache: {url}')
         arr, img = IMAGE_CACHE[url]
         return arr, img
     else:
-        res = requests.get(url, stream=True)
-        img = Image.open(BytesIO(res.content))
-        imgArr = np.array(img)
+        async with semaphore:
+            async with aiohttp.ClientSession() as session:
+            # async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=2_000, verify_ssl=False), trust_env=True) as session:
+                async with session.get(url) as response:
+                    img_data = await response.read()
+                    img = Image.open(BytesIO(img_data))
+                    imgArr = np.array(img)
 
-        if CONFIG['useImageCache']:
-            IMAGE_CACHE[url] = (imgArr, img)
-            with open('imageCache.pickle', 'wb') as f:
-                pickle.dump(IMAGE_CACHE, f)
-            print(f'SAVED img in cache: {url}')
+                    if CONFIG['useImageCache']:
+                        IMAGE_CACHE[url] = (imgArr, img)
+                        with open('imageCache.pickle', 'wb') as f:
+                            pickle.dump(IMAGE_CACHE, f)
+                        print(f'SAVED img in cache: {url}')
 
-        return imgArr, img
+                    time.sleep(0.5)
+
+                    return imgArr, img
+
 
 def imgToCoords(img):
     '''
@@ -53,8 +66,8 @@ def imgToCoords(img):
 
     return angle, depth
 
-def getImageAndCoords(url):
-    imageArr, image = downloadImage(url)
+async def getImageAndCoords(url):
+    imageArr, image = await downloadImage(url)
     angle, depth = imgToCoords(imageArr)
 
     return image, (angle, depth)

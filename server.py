@@ -3,6 +3,7 @@ from DrawCanvas import getStartsAndImages
 import time
 
 # server.py
+import asyncio
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import json
@@ -34,7 +35,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             print(f'Loaded {len(data)} tracks')
 
             # Generate data
-            pos, _ = getStartsAndImages(data)
+            # pos, _ = getStartsAndImages(data)
+            loop = asyncio.get_event_loop()
+            pos, _ = loop.run_until_complete(getStartsAndImages(data))
 
             # Convert to web format
             finalData = []

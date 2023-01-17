@@ -3,14 +3,23 @@ from ImageDownloader import getImageAndCoords
 from utils import polarToCartesian
 import numpy as np
 from PIL import Image
+import asyncio
 
-
-def getStartsAndImages(trackobjs):
+async def getStartsAndImages(trackobjs):
     realImages = {}
     pos = {}
+    # This is the loop that should be async
+    tasks = []
     for track in trackobjs:
         title = track['title']
-        img, polar = getImageAndCoords(track['image']['url'])
+        # img, polar = getImageAndCoords(track['image']['url'])
+        tasks.append(asyncio.ensure_future(getImageAndCoords(track['image']['url'])))
+        # cart = polarToCartesian(*polar)
+        # pos[title] = cart
+        # realImages[title] = img
+
+    for i, (img, polar) in enumerate(await asyncio.gather(*tasks)):
+        title = trackobjs[i]['title']
         cart = polarToCartesian(*polar)
         pos[title] = cart
         realImages[title] = img
@@ -23,8 +32,17 @@ def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False):
     WHITE = (255, 255, 255)
 
     print(f'Pulling images...')
-    ogpos, realImages = getStartsAndImages(trackobjs)
+    # ogpos, realImages = getStartsAndImages(trackobjs)
+    
+    # results = getStartsAndImages(trackobjs)
+    loop = asyncio.get_event_loop()
+    # results = loop.run_until_complete(getStartsAndImages(trackobjs))
+    ogpos, realImages = loop.run_until_complete(getStartsAndImages(trackobjs))
     print(f'Finished getting images')
+    print(ogpos)
+    print(realImages)
+    print(loop)
+    # quit()
 
     # Add nodes from titles
     G = nx.Graph()
@@ -133,9 +151,10 @@ def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False):
 if __name__ == '__main__':
     from BuildCollage import loadData
 
-    url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
-    url = 'https://open.spotify.com/playlist/7dveEZVRWXFRHaa9bgDVWe'
-    data = loadData(url, limit=100)
+    # url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
+    # url = 'https://open.spotify.com/playlist/7dveEZVRWXFRHaa9bgDVWe'
+    url = 'https://open.spotify.com/playlist/4BnmmXEw9RQk0lsYBdNqMa?si=4590173a392c4ce9'
+    data = loadData(url, limit=100)[0]
 
     canvas = drawCanvas(data, verbose=True)
     print(canvas)
