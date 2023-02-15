@@ -1,19 +1,26 @@
 import networkx as nx
-from ImageDownloader import getImageAndCoords
-from utils import polarToCartesian
+import asyncio
+import aiohttp
 import numpy as np
 from PIL import Image
 
+from ImageDownloader import getImageAndCoords
+from utils import polarToCartesian
 
-def getStartsAndImages(trackobjs):
+
+async def getStartsAndImages(trackobjs):
+    session = aiohttp.ClientSession()
+    futures = [getImageAndCoords(session, track['title'], track['image']['url']) for track in trackobjs]
+
     realImages = {}
     pos = {}
-    for track in trackobjs:
-        title = track['title']
-        img, polar = getImageAndCoords(track['image']['url'])
+    for future in asyncio.as_completed(futures):
+        title, img, polar = await future
         cart = polarToCartesian(*polar)
         pos[title] = cart
         realImages[title] = img
+
+    await session.close()
 
     return pos, realImages
 
@@ -23,8 +30,9 @@ def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False):
     WHITE = (255, 255, 255)
 
     print(f'Pulling images...')
-    ogpos, realImages = getStartsAndImages(trackobjs)
-    print(f'Finished getting images')
+    # ogpos, realImages = getStartsAndImages(trackobjs)
+    ogpos, realImages = asyncio.run(getStartsAndImages(trackobjs))
+    print(f'Finished getting {len(realImages)} images')
 
     # Add nodes from titles
     G = nx.Graph()
@@ -133,9 +141,9 @@ def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False):
 if __name__ == '__main__':
     from BuildCollage import loadData
 
-    url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
+    # url = 'https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=3ac97348f87f4a17'
     url = 'https://open.spotify.com/playlist/7dveEZVRWXFRHaa9bgDVWe'
-    data = loadData(url, limit=100)
+    data, title = loadData(url, limit=100)
 
     canvas = drawCanvas(data, verbose=True)
     print(canvas)
