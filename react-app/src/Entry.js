@@ -20,12 +20,12 @@ class URLEntry extends React.Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          URL:
-          <input type="text" value={this.state.url} onChange={this.handleChange} />
+      <form class="submission-form" onSubmit={this.handleSubmit}>
+        <label class="url-entry">
+          Playlist URL:
+          <input class="url-pastebox" type="text" value={this.state.url} onChange={this.handleChange} />
         </label>
-        <button type="submit">SUBMIT URL</button>
+        <button class="submit-button" type="submit">SUBMIT URL</button>
       </form>
     );
   }
