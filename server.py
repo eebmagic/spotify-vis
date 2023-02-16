@@ -62,6 +62,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             print(f'Encountered error: {str(e)}')
             print(e)
             self.send_error(500, f"Encountered error: {str(e)}")
+            raise e
             # self.send_header('Content-type', 'application/json')
             # self.send_header('Access-Control-Allow-Origin', 'http://localhost:3000')
             # self.end_headers()
