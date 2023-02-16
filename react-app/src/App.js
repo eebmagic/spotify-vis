@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import URLEntry from './Entry.js';
+import URLEntry from './Entry';
 import PList from './PList';
+import LoadingOverlay from './LoadingOverlay';
 import { ForceGraph2D } from 'react-force-graph';
 import CONFIG from './config.json';
 import './styles.css';
@@ -12,6 +13,7 @@ const App = () => {
   const [currlist, setCurrlist] = useState("");
   const [tracks, setTracks] = useState({nodes: [], links: []});
   const [waiting, setWaiting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [username, setUsername] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -19,6 +21,7 @@ const App = () => {
 
   // Func for making call to python server and updated tracks
   const getPlaylist = (url) => {
+    setIsLoading(true);
     if (!waiting) {
       console.log(` Sending: ${url}`);
       // setWaiting(true);
@@ -58,7 +61,12 @@ const App = () => {
 
           setCurrlist({name: name, url: url});
           setTracks(gdata);
-          setWaiting(false)
+          setWaiting(false);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.log(`Error: ${error}`);
+          setWaiting(false);
         });
     } else {
       console.log(`Blocked call because still waiting on last call`);
@@ -135,7 +143,9 @@ const App = () => {
                 }
               });
           }
-
+        })
+        .catch(error => {
+          console.log(error);
         });
 
       console.log(`After loop got ${items.length} items`);
@@ -163,19 +173,8 @@ const App = () => {
   const fgRef = useRef();
 
   useEffect(() => {
-    // console.log('fgRef was changed. Running useEffect');
-    // console.log(fgRef)
-    // if (fgRef.current) {
-      // fgRef.current.d3Force('center').strength(-1);
-      // const f = d3.forceCenter(0, 0);
-      // f.strength = -10;
-      // console.log(f);
-      // console.log(f.strength)
-      // console.log(fgRef.current.d3Force('charge'))
-      // fgRef.current.d3Force('center', () => {return -10})
-      // fgRef.current.d3Force('charge', d3.forceManyBody(10))
-    // }
-  }, [])
+    console.log(`isLoading changed to ${isLoading}`);
+  }, [isLoading])
 
   const hanldeClick = () => {
     getPlaylist('https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=06b42bd054724d14');
@@ -183,68 +182,70 @@ const App = () => {
 
   return (
     <div>
-      <URLEntry submitFunc={getPlaylist}/>
-      <button onClick={hanldeClick}>OK MUSIC SENIOR</button>
-      {/* {tracks.nodes.length === 0 ? null */}
-      {(0 == 1) ? null
-        :
-        <ForceGraph2D
-          graphData={tracks}
-          ref={fgRef}
-          backgroundColor="#1a1a1a"
-          linkColor={() => "#ffffff"}
-          // d3AlphaDecay={0.16}
-          d3VelocityDecay={0.15}
-          width={1400}
-          height={1000}
-          nodeLabel="id"
-          nodeVal={4*100*0.6}
-          enableNodeDrag={false}
-          onNodeRightClick={(node, event) => {
-            console.log(`fgRef.current:`);
-            console.log(fgRef.current);
-            console.log(`Clicked on node: ${node.trackURL}`);
-            window.open(node.trackURL, '_blank');
-          }}
-          cooldownTime={500}
-          onEngineStop={() => {
-            console.log(`ZOOMING TO FIT!`);
-            fgRef.current.zoomToFit(400);
-          }}
-          nodeCanvasObject={(node, ctx) => {
-            const SIZE = 100;
-            const {imageObj, x, y} = node;
-            ctx.drawImage(imageObj, x-(SIZE/2), y-(SIZE/2), SIZE, SIZE);
+      <LoadingOverlay isLoading={isLoading}>
+        <URLEntry submitFunc={getPlaylist}/>
+        <button onClick={hanldeClick}>OK MUSIC SENIOR</button>
+        {/* {tracks.nodes.length === 0 ? null */}
+        {(0 == 1) ? null
+          :
+          <ForceGraph2D
+            graphData={tracks}
+            ref={fgRef}
+            backgroundColor="#1a1a1a"
+            linkColor={() => "#ffffff"}
+            // d3AlphaDecay={0.16}
+            d3VelocityDecay={0.15}
+            width={1400}
+            height={1000}
+            nodeLabel="id"
+            nodeVal={4*100*0.6}
+            enableNodeDrag={false}
+            onNodeRightClick={(node, event) => {
+              console.log(`fgRef.current:`);
+              console.log(fgRef.current);
+              console.log(`Clicked on node: ${node.trackURL}`);
+              window.open(node.trackURL, '_blank');
+            }}
+            cooldownTime={500}
+            onEngineStop={() => {
+              console.log(`ZOOMING TO FIT!`);
+              fgRef.current.zoomToFit(400);
+            }}
+            nodeCanvasObject={(node, ctx) => {
+              const SIZE = 100;
+              const {imageObj, x, y} = node;
+              ctx.drawImage(imageObj, x-(SIZE/2), y-(SIZE/2), SIZE, SIZE);
 
-            setDrawCount(drawCount + 1);
-          }}
-        />
-      }
+              setDrawCount(drawCount + 1);
+            }}
+          />
+        }
 
-      <div class="current-playlist">
-        <p>Current Playlist: <a href={currlist.url} target="_blank" rel="noopener noreferrer">{currlist.name}</a></p>
-      </div>
+        <div class="current-playlist">
+          <p>Current Playlist: <a href={currlist.url} target="_blank" rel="noopener noreferrer">{currlist.name}</a></p>
+        </div>
 
-      <h1 class="plalist-list-header">My Playlists</h1>
-      {/* <h1 style="align: center">My Playlists</h1> */}
-      <div class="playlist-container">
-        {playlists.map(playlist => {
-          // console.log(`${playlist.id}`);
-          // console.log(playlist);
-          if (playlist.images.length > 0) {
-            return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
-          } else {
-            return null;
-          }
-        })}
-      </div>
-      
-      <div className="userinfo">
-        <p>Access Token: {token}</p>
-        <p>Username: {username}</p>
-        <p>email: {userEmail}</p>
-        <img src={userImage} alt="failed to load" />
-      </div>
+        <h1 class="plalist-list-header">My Playlists</h1>
+        {/* <h1 style="align: center">My Playlists</h1> */}
+        <div class="playlist-container">
+          {playlists.map(playlist => {
+            // console.log(`${playlist.id}`);
+            // console.log(playlist);
+            if (playlist.images.length > 0) {
+              return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
+            } else {
+              return null;
+            }
+          })}
+        </div>
+        
+        <div className="userinfo">
+          <p>Access Token: {token}</p>
+          <p>Username: {username}</p>
+          <p>email: {userEmail}</p>
+          <img src={userImage} alt="failed to load" />
+        </div>
+      </LoadingOverlay>
     </div>
   );
 };
