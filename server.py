@@ -31,7 +31,17 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             # Process url
             data, playlistName = loadData(url)
-            print(f'Loaded {len(data)} tracks')
+            print(f'Loaded {len(data)} albums')
+
+            # Check number of albums
+            # If too many albums then throw some error (lookup best response number)
+            if len(data) > CONFIG['maxAlbums']:
+                print(f'STOPPING: because playlist exceeded max albums {len(data)} (Max of {CONFIG["maxAlbums"]})')
+                self.send_response(400, f"Too many albums in playlist. Max is {CONFIG['maxAlbums']}, your playlist has {len(data)}")
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                return
 
             # Generate data
             print(f'Getting image positions...')

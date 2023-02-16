@@ -4,5 +4,6 @@
   "pyServerPort": 8000,
   "pyServerAddress": "localhost",
   "serverOnHTTPS": false,
-  "redirectURI": "http://localhost:3000/"
+  "redirectURI": "http://localhost:3000/",
+  "maxAlbums": 1000
 }
