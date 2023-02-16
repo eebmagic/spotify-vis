@@ -76,7 +76,7 @@ def drawCanvas(trackobjs, SIZE=(640*30)//4, POS_SCALE_FACTOR=1, verbose=False):
         print(f"X range: {arr[:, 0].min()} to {arr[:, 0].max()} ({Xrange})")
         print(f"Y range: {arr[:, 1].min()} to {arr[:, 1].max()} ({Yrange})")
         print(f"Scale: {Scale}")
-        # print(f"K: {K}")
+        print(f"K: {K}")
         print()
 
     # Tweak points location

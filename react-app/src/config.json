@@ -5,5 +5,6 @@
   "pyServerAddress": "spotifyvisapi.click",
   "serverOnHTTPS": true,
   "redirectURI": "https://spotify-vis-eebmagic.vercel.app/",
-  "maxAlbums": 1000
+  "maxAlbums": 1000,
+  "logLevel": "INFO"
 }
