@@ -20,12 +20,12 @@ class PList extends React.Component {
 
   render() {
     return (
-      <div key={this.props.plist.id} onClick={this.handleClick}>
-        <div>
+      <div class="playlist-item" key={this.props.plist.id} onClick={this.handleClick}>
+        <div class="playlist-name">
           {this.props.plist.name}
         </div>
         {this.url ? 
-          <div>
+          <div class="playlist-image">
             <img src={this.url} width="200" alt="failed to load" />
           </div>
           :

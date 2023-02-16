@@ -3,6 +3,7 @@ import URLEntry from './Entry.js';
 import PList from './PList';
 import { ForceGraph2D } from 'react-force-graph';
 import CONFIG from './config.json';
+import './styles.css';
 
 const App = () => {
   const [token, setToken] = useState("");
@@ -194,8 +195,8 @@ const App = () => {
           linkColor={() => "#ffffff"}
           // d3AlphaDecay={0.16}
           d3VelocityDecay={0.15}
-          width={800}
-          height={600}
+          width={1400}
+          height={1000}
           nodeLabel="id"
           nodeVal={4*100*0.6}
           enableNodeDrag={false}
@@ -220,23 +221,30 @@ const App = () => {
         />
       }
 
-      <p>Current Playlist: <a href={currlist.url} target="_blank" rel="noopener noreferrer">{currlist.name}</a></p>
+      <div class="current-playlist">
+        <p>Current Playlist: <a href={currlist.url} target="_blank" rel="noopener noreferrer">{currlist.name}</a></p>
+      </div>
 
-      <h1>My Playlists</h1>
-      {playlists.map(playlist => {
-        // console.log(`${playlist.id}`);
-        // console.log(playlist);
-        if (playlist.images.length > 0) {
-          return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
-        } else {
-          return null;
-        }
-      })}
+      <h1 class="plalist-list-header">My Playlists</h1>
+      {/* <h1 style="align: center">My Playlists</h1> */}
+      <div class="playlist-container">
+        {playlists.map(playlist => {
+          // console.log(`${playlist.id}`);
+          // console.log(playlist);
+          if (playlist.images.length > 0) {
+            return <PList plist={playlist} key={playlist.id} submitFunc={getPlaylist}/>
+          } else {
+            return null;
+          }
+        })}
+      </div>
       
-      <p>Access Token: {token}</p>
-      <p>Username: {username}</p>
-      <p>email: {userEmail}</p>
-      <img src={userImage} alt="failed to load" />
+      <div className="userinfo">
+        <p>Access Token: {token}</p>
+        <p>Username: {username}</p>
+        <p>email: {userEmail}</p>
+        <img src={userImage} alt="failed to load" />
+      </div>
     </div>
   );
 };
