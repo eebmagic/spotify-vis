@@ -1,4 +1,3 @@
-import requests
 from PIL import Image
 import numpy as np
 from io import BytesIO
@@ -6,8 +5,6 @@ import colorsys
 import pickle
 import json
 import os
-import aiohttp
-import asyncio
 
 with open('./react-app/src/config.json') as file:
     CONFIG = json.load(file)
