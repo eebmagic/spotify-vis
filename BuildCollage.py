@@ -5,6 +5,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import pickle
 import json
 import os
+import logging
 
 with open('./react-app/src/config.json') as file:
     CONFIG = json.load(file)
@@ -40,7 +41,7 @@ def loadData(url, limit=None):
         # WITHOUT Cache
         plistID = getid(url)
         apiResult = sp.playlist(plistID)
-        print(f'Total tracks according to spotify: {apiResult["tracks"]["total"]}')
+        totalNumTracks = apiResult['tracks']['total']
 
     ########################
 
@@ -60,7 +61,7 @@ def loadData(url, limit=None):
 
             images = track['album']['images']
             if not images:
-                print(f'Skipping track: "{title}" because no images found')
+                logging.warning(f'Skipping track: "{title}" because no images found')
                 continue
             bestImage = max(images, key=lambda im: im['height']*im['width'])
 
@@ -79,7 +80,6 @@ def loadData(url, limit=None):
                 if limit and i >= limit:
                     break
 
-        # print(json.dumps(result, indent=2))
         nextResult = None
         if ('tracks' in result) and (result['tracks']['next']):
             nextResult = sp.next(result['tracks'])
@@ -94,7 +94,7 @@ def loadData(url, limit=None):
 
     trackObjs, playlistName = processResult(apiResult)
 
-    return trackObjs, playlistName
+    return trackObjs, playlistName, totalNumTracks
 
 
 if __name__ == "__main__":
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     # Ok music junior year 
     url = 'https://open.spotify.com/playlist/4BnmmXEw9RQk0lsYBdNqMa'
 
-    data, name = loadData(url)
-    # print(json.dumps(data, indent=2))
-    print(type(data), type(name))
-    print(len(data))
+    data, name, totalNumTracks = loadData(url)
+    print(type(data), type(name), type(totalNumTracks))
+    print(f'Num tracks: {totalNumTracks}')
+    print(f'Num albums: {len(data)}')
     print(name)

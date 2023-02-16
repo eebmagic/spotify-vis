@@ -53,7 +53,6 @@ def imgToCoords(img):
     return angle, depth
 
 async def getImageAndCoords(session, title, url):
-    # print(url)
     imageArr, image = await downloadImage(session, url)
     angle, depth = imgToCoords(imageArr)
 
