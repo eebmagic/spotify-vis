@@ -1,8 +1,8 @@
 from BuildCollage import loadData
 from DrawCanvas import getStartsAndImages
-import time
 
-# server.py
+import time
+import asyncio
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import json
@@ -23,7 +23,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             username = query_params.get('username', [''])[0]
 
             print(json.dumps(query_params, indent=2))
-            print(f'url: {url}')
+            print(f'     url: {url}')
             print(f'   email: {email}')
             print(f'username: {username}')
 
@@ -34,7 +34,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             print(f'Loaded {len(data)} tracks')
 
             # Generate data
-            pos, _ = getStartsAndImages(data)
+            print(f'Getting image positions...')
+            pos, _ = asyncio.run(getStartsAndImages(data))
 
             # Convert to web format
             finalData = []
