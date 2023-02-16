@@ -40,6 +40,7 @@ def loadData(url, limit=None):
         # WITHOUT Cache
         plistID = getid(url)
         apiResult = sp.playlist(plistID)
+        print(f'Total tracks according to spotify: {apiResult["tracks"]["total"]}')
 
     ########################
 

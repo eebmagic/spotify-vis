@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import URLEntry from './Entry';
 import PList from './PList';
 import LoadingOverlay from './LoadingOverlay';
+import PopupWindow from './PopupWindow';
 import { ForceGraph2D } from 'react-force-graph';
 import CONFIG from './config.json';
 import './styles.css';
@@ -14,6 +15,8 @@ const App = () => {
   const [tracks, setTracks] = useState({nodes: [], links: []});
   const [waiting, setWaiting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupText, setPopupText] = useState("");
 
   const [username, setUsername] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -22,6 +25,7 @@ const App = () => {
   // Func for making call to python server and updated tracks
   const getPlaylist = (url) => {
     setIsLoading(true);
+    setShowPopup(false);
     if (!waiting) {
       console.log(` Sending: ${url}`);
       // setWaiting(true);
@@ -31,12 +35,15 @@ const App = () => {
         .then(response => {
           console.log(`Got response:`);
           console.log(response);
+          setWaiting(false);
           if (response.ok) {
             return response.json();
           } else {
             console.log(`Bad response from server: ${response.status} ${response.statusText}`)
             setWaiting(false);
-            throw new Error(`Bad response from server: ${response.status} ${response.statusText}`)
+            setIsLoading(false);
+            setShowPopup(true);
+            setPopupText(response.statusText);
           }
         })
         .then(result => {
@@ -63,10 +70,6 @@ const App = () => {
           setTracks(gdata);
           setWaiting(false);
           setIsLoading(false);
-        })
-        .catch(error => {
-          console.log(`Error: ${error}`);
-          setWaiting(false);
         });
     } else {
       console.log(`Blocked call because still waiting on last call`);
@@ -172,9 +175,10 @@ const App = () => {
   const [drawCount, setDrawCount] = useState(0);
   const fgRef = useRef();
 
-  useEffect(() => {
-    console.log(`isLoading changed to ${isLoading}`);
-  }, [isLoading])
+  // useEffect(() => {
+  //   console.log(`isLoading changed to ${isLoading}`);
+  //   console.log(`showPopup changed to ${showPopup}`);
+  // }, [isLoading, showPopup])
 
   const hanldeClick = () => {
     getPlaylist('https://open.spotify.com/playlist/5QzeLb74u9IyKdVCn9qVeI?si=06b42bd054724d14');
@@ -183,10 +187,16 @@ const App = () => {
   return (
     <div>
       <LoadingOverlay isLoading={isLoading}>
+        {showPopup && (
+          <PopupWindow
+            title="Playlist Too Long"
+            subtext={popupText}
+            onClose={() => setShowPopup(false)}
+          />
+        )}
         <URLEntry submitFunc={getPlaylist}/>
         <button onClick={hanldeClick}>OK MUSIC SENIOR</button>
-        {/* {tracks.nodes.length === 0 ? null */}
-        {(0 == 1) ? null
+        {(false) ? null
           :
           <ForceGraph2D
             graphData={tracks}
@@ -194,7 +204,7 @@ const App = () => {
             backgroundColor="#1a1a1a"
             linkColor={() => "#ffffff"}
             // d3AlphaDecay={0.16}
-            d3VelocityDecay={0.15}
+            d3VelocityDecay={0.20}
             width={1400}
             height={1000}
             nodeLabel="id"
@@ -206,7 +216,7 @@ const App = () => {
               console.log(`Clicked on node: ${node.trackURL}`);
               window.open(node.trackURL, '_blank');
             }}
-            cooldownTime={500}
+            cooldownTime={800}
             onEngineStop={() => {
               console.log(`ZOOMING TO FIT!`);
               fgRef.current.zoomToFit(400);
@@ -238,7 +248,7 @@ const App = () => {
             }
           })}
         </div>
-        
+
         <div className="userinfo">
           <p>Access Token: {token}</p>
           <p>Username: {username}</p>
