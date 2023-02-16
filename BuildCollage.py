@@ -43,10 +43,6 @@ def loadData(url, limit=None):
 
     ########################
 
-    # totalTracks = apiResult['tracks']['total']
-    # found = len(apiResult['tracks']['items'])
-    # print(f'Found {found} tracks out of {totalTracks} total tracks')
-
     # TODO: Update this later to iterate until no more 'next' attribute
     def processResult(result, trackObjs=[], trackedAlbums=set()):
         if 'tracks' in result:
